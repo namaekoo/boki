@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>簿記 学習ツリー（3級・2級・1級）</title>
+<style>
+:root{--tap:44px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#f4f5f7;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Segoe UI","Noto Sans JP",sans-serif;-webkit-text-size-adjust:100%}
+
+header{background:#222;color:#fff;padding:14px 14px 10px;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:17px;line-height:1.3}
+header p{margin:3px 0 10px;color:#bbb;font-size:11.5px}
+
+.tabbar{display:flex;gap:6px}
+.tabbtn{flex:1;min-height:var(--tap);border:0;border-radius:10px;background:#3a3a3a;color:#ddd;font-size:13px;font-weight:700;cursor:pointer}
+.tabbtn.active{background:#fff;color:#222}
+
+.toolbar{background:#fff;border-bottom:1px solid #ddd;padding:10px 12px;position:sticky;top:96px;z-index:9;display:flex;gap:8px;flex-wrap:wrap}
+.search{width:100%;min-height:var(--tap);padding:0 12px;border:1px solid #ccc;border-radius:9px;font-size:16px}
+.btnrow{display:flex;gap:8px;width:100%}
+.btnrow button{flex:1;min-height:var(--tap);border:1px solid #ccc;border-radius:9px;background:#fff;font-size:13px;font-weight:600}
+.btnrow button:active{background:#eee}
+
+main{max-width:640px;margin:0 auto;padding:14px 10px 60px}
+.panel.hidden{display:none}
+.tree{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 8px #0001}
+.root{background:#222;color:#fff;border-radius:10px;padding:14px;text-align:center;font-size:17px;font-weight:bold;margin-bottom:14px}
+
+ul{list-style:none;margin:0;padding-left:12px}
+.tree>ul{padding-left:0}
+li{margin:6px 0}
+.children{display:none;margin-top:6px}
+.open>.children{display:block}
+
+.node{display:flex;align-items:center;gap:6px;padding:10px 8px;background:#f7f7f8;border:1px solid #e3e3e6;border-radius:9px;min-height:var(--tap)}
+.node:active{background:#ececef}
+.branch>.node{cursor:pointer}
+.branch.cat>.node{background:#222;border-color:#222}
+.branch.cat>.node .label{color:#fff;font-weight:800;font-size:14.5px}
+.branch:not(.cat)>.node{background:#eaeaec}
+.branch:not(.cat)>.node .label{font-weight:700;font-size:13.5px}
+.leaf>.node{background:#fff}
+.leaf>.node .label{font-size:13.5px;font-weight:400;color:#333}
+
+.toggle{width:16px;flex-shrink:0;text-align:center;font-size:11px;color:#888;transition:transform .15s}
+.branch.cat>.node .toggle{color:#ccc}
+.open>.node>.toggle{transform:rotate(90deg)}
+.leaf>.node .toggle{display:none}
+
+.label{flex:1;line-height:1.4;word-break:break-word}
+.desc{font-size:11px;color:#c0392b;font-weight:700;flex-shrink:0;background:#fdeaea;padding:2px 6px;border-radius:6px}
+
+.copybtn{flex-shrink:0;width:36px;height:36px;border:0;background:transparent;border-radius:8px;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.copybtn:active{background:#ddd}
+.copybtn.copied{background:#d7f4dd}
+
+.note{margin-top:14px;padding:12px;background:#fafafa;border-left:4px solid #555;border-radius:6px;font-size:12.5px;line-height:1.6}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,0);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:.95}
+</style>
+</head>
+<body>
+<header>
+<h1>簿記 学習ツリー</h1>
+<p>3級・2級・1級を切り替えて学習。タップでコピーできます</p>
+<div class="tabbar">
+<button class="tabbtn active" data-idx="0" onclick="switchTab(0)">簿記3級</button>
+<button class="tabbtn" data-idx="1" onclick="switchTab(1)">簿記2級</button>
+<button class="tabbtn" data-idx="2" onclick="switchTab(2)">簿記1級</button>
+</div>
+</header>
+
+<div class="toolbar">
+<input id="search" class="search" placeholder="🔍 検索：売掛金、減価償却、仕訳など" inputmode="search">
+<div class="btnrow">
+<button onclick="expandAll()">すべて開く</button>
+<button onclick="closeAll()">すべて閉じる</button>
+</div>
+</div>
+
+<main>
+<section id="panel0" class="panel" data-level="0">
+<div class="tree">
+<div class="root">簿記3級</div>
+<ul>
+<li class="branch open"><div class="node"><span class="toggle">▸</span><span class="label">① 簿記の基本</span><button class="copybtn" onclick="copyText(event,this)" data-copy="① 簿記の基本" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">簿記とは</span><button class="copybtn" onclick="copyText(event,this)" data-copy="簿記とは" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">資産・負債・純資産・収益・費用</span><button class="copybtn" onclick="copyText(event,this)" data-copy="資産・負債・純資産・収益・費用" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">借方・貸方</span><button class="copybtn" onclick="copyText(event,this)" data-copy="借方・貸方" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">資産＝負債＋純資産</span><button class="copybtn" onclick="copyText(event,this)" data-copy="資産＝負債＋純資産" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">収益−費用＝利益</span><button class="copybtn" onclick="copyText(event,this)" data-copy="収益−費用＝利益" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">② 勘定科目</span><button class="copybtn" onclick="copyText(event,this)" data-copy="② 勘定科目" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">現金・普通預金・当座預金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="現金・普通預金・当座預金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">売掛金・買掛金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="売掛金・買掛金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">商品・仕入・売上</span><button class="copybtn" onclick="copyText(event,this)" data-copy="商品・仕入・売上" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">備品・建物・土地</span><button class="copybtn" onclick="copyText(event,this)" data-copy="備品・建物・土地" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">借入金・貸付金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="借入金・貸付金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">未払金・未収入金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="未払金・未収入金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">前払金・前受金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="前払金・前受金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">給料・通信費・水道光熱費・支払利息</span><button class="copybtn" onclick="copyText(event,this)" data-copy="給料・通信費・水道光熱費・支払利息" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">③ 仕訳</span><button class="copybtn" onclick="copyText(event,this)" data-copy="③ 仕訳" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">仕訳の基本ルール</span><button class="copybtn" onclick="copyText(event,this)" data-copy="仕訳の基本ルール" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">資産の増減</span><button class="copybtn" onclick="copyText(event,this)" data-copy="資産の増減" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">負債の増減</span><button class="copybtn" onclick="copyText(event,this)" data-copy="負債の増減" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">収益・費用の発生</span><button class="copybtn" onclick="copyText(event,this)" data-copy="収益・費用の発生" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">現金・預金の取引</span><button class="copybtn" onclick="copyText(event,this)" data-copy="現金・預金の取引" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">売掛金・買掛金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="売掛金・買掛金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">借入・返済</span><button class="copybtn" onclick="copyText(event,this)" data-copy="借入・返済" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">固定資産の購入</span><button class="copybtn" onclick="copyText(event,this)" data-copy="固定資産の購入" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">現金過不足</span><button class="copybtn" onclick="copyText(event,this)" data-copy="現金過不足" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">④ 商品売買</span><button class="copybtn" onclick="copyText(event,this)" data-copy="④ 商品売買" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">三分法</span><button class="copybtn" onclick="copyText(event,this)" data-copy="三分法" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">仕入</span><button class="copybtn" onclick="copyText(event,this)" data-copy="仕入" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">売上</span><button class="copybtn" onclick="copyText(event,this)" data-copy="売上" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">売掛金・買掛金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="売掛金・買掛金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">返品・値引</span><button class="copybtn" onclick="copyText(event,this)" data-copy="返品・値引" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">売上原価</span><button class="copybtn" onclick="copyText(event,this)" data-copy="売上原価" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑤ 決算整理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑤ 決算整理" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">売上原価</span><button class="copybtn" onclick="copyText(event,this)" data-copy="売上原価" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">減価償却</span><button class="copybtn" onclick="copyText(event,this)" data-copy="減価償却" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">貸倒引当金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="貸倒引当金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">前払費用・未払費用</span><button class="copybtn" onclick="copyText(event,this)" data-copy="前払費用・未払費用" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">前受収益・未収収益</span><button class="copybtn" onclick="copyText(event,this)" data-copy="前受収益・未収収益" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">消費税・法人税等などの決算項目</span><button class="copybtn" onclick="copyText(event,this)" data-copy="消費税・法人税等などの決算項目" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑥ 試算表・精算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑥ 試算表・精算表" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">合計試算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="合計試算表" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">残高試算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="残高試算表" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">合計残高試算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="合計残高試算表" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">精算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="精算表" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">貸借一致の確認</span><button class="copybtn" onclick="copyText(event,this)" data-copy="貸借一致の確認" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑦ 財務諸表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑦ 財務諸表" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">貸借対照表（B/S）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="貸借対照表（B/S）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">損益計算書（P/L）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="損益計算書（P/L）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">資産・負債・純資産の関係</span><button class="copybtn" onclick="copyText(event,this)" data-copy="資産・負債・純資産の関係" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">収益・費用・利益の関係</span><button class="copybtn" onclick="copyText(event,this)" data-copy="収益・費用・利益の関係" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑧ その他・応用</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑧ その他・応用" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">証ひょう・伝票</span><button class="copybtn" onclick="copyText(event,this)" data-copy="証ひょう・伝票" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">電子記録債権・債務</span><button class="copybtn" onclick="copyText(event,this)" data-copy="電子記録債権・債務" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">当座借越</span><button class="copybtn" onclick="copyText(event,this)" data-copy="当座借越" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">訂正仕訳</span><button class="copybtn" onclick="copyText(event,this)" data-copy="訂正仕訳" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">帳簿・勘定記入</span><button class="copybtn" onclick="copyText(event,this)" data-copy="帳簿・勘定記入" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑨ 試験対策</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑨ 試験対策" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">第1問：仕訳</span><button class="copybtn" onclick="copyText(event,this)" data-copy="第1問：仕訳" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">第2問：勘定・帳簿など</span><button class="copybtn" onclick="copyText(event,this)" data-copy="第2問：勘定・帳簿など" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">第3問：決算・財務諸表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="第3問：決算・財務諸表" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">過去問演習</span><button class="copybtn" onclick="copyText(event,this)" data-copy="過去問演習" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">間違えた問題の復習</span><button class="copybtn" onclick="copyText(event,this)" data-copy="間違えた問題の復習" aria-label="コピー">📋</button></div></li>
+</ul></li>
+</ul>
+<div class="note"><b>おすすめの進め方：</b> ①基本 → ②勘定科目 → ③仕訳 → ④商品売買 → ⑤決算整理 → ⑥試算表・精算表 → ⑦財務諸表 → ⑨過去問</div>
+</div>
+</section>
+<section id="panel1" class="panel hidden" data-level="1">
+<div class="tree">
+<div class="root">簿記2級</div>
+<ul>
+<li class="branch cat open"><div class="node"><span class="toggle">▸</span><span class="label">商業簿記</span><button class="copybtn" onclick="copyText(event,this)" data-copy="商業簿記" aria-label="コピー">📋</button></div><ul class="children">
+<li class="branch open"><div class="node"><span class="toggle">▸</span><span class="label">① 商品売買・債権債務</span><button class="copybtn" onclick="copyText(event,this)" data-copy="① 商品売買・債権債務" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">三分法の復習</span><button class="copybtn" onclick="copyText(event,this)" data-copy="三分法の復習" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">クレジット売掛金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="クレジット売掛金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">電子記録債権・債務</span><button class="copybtn" onclick="copyText(event,this)" data-copy="電子記録債権・債務" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">商品券・他店商品券</span><button class="copybtn" onclick="copyText(event,this)" data-copy="商品券・他店商品券" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">約束手形・為替手形</span><button class="copybtn" onclick="copyText(event,this)" data-copy="約束手形・為替手形" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">手形の裏書・割引</span><button class="copybtn" onclick="copyText(event,this)" data-copy="手形の裏書・割引" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">貸倒れの処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="貸倒れの処理" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">② 有形固定資産</span><button class="copybtn" onclick="copyText(event,this)" data-copy="② 有形固定資産" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">取得原価の決定</span><button class="copybtn" onclick="copyText(event,this)" data-copy="取得原価の決定" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">減価償却（定額法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="減価償却（定額法）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">減価償却（定率法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="減価償却（定率法）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">生産高比例法</span><button class="copybtn" onclick="copyText(event,this)" data-copy="生産高比例法" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">固定資産の売却</span><button class="copybtn" onclick="copyText(event,this)" data-copy="固定資産の売却" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">固定資産の除却・廃棄</span><button class="copybtn" onclick="copyText(event,this)" data-copy="固定資産の除却・廃棄" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">改良と修繕</span><button class="copybtn" onclick="copyText(event,this)" data-copy="改良と修繕" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">建設仮勘定</span><button class="copybtn" onclick="copyText(event,this)" data-copy="建設仮勘定" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">ファイナンス・リース取引</span><button class="copybtn" onclick="copyText(event,this)" data-copy="ファイナンス・リース取引" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">オペレーティング・リース取引</span><button class="copybtn" onclick="copyText(event,this)" data-copy="オペレーティング・リース取引" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">③ 無形固定資産・研究開発費</span><button class="copybtn" onclick="copyText(event,this)" data-copy="③ 無形固定資産・研究開発費" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">のれん</span><button class="copybtn" onclick="copyText(event,this)" data-copy="のれん" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">ソフトウェア（自社利用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="ソフトウェア（自社利用）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">研究開発費</span><button class="copybtn" onclick="copyText(event,this)" data-copy="研究開発費" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">④ 引当金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="④ 引当金" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">貸倒引当金（差額補充法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="貸倒引当金（差額補充法）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">賞与引当金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="賞与引当金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">退職給付引当金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="退職給付引当金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">修繕引当金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="修繕引当金" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑤ 株式会社会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑤ 株式会社会計" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">資本金・資本準備金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="資本金・資本準備金" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">利益準備金・剰余金の配当</span><button class="copybtn" onclick="copyText(event,this)" data-copy="利益準備金・剰余金の配当" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">新株の発行</span><button class="copybtn" onclick="copyText(event,this)" data-copy="新株の発行" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">自己株式</span><button class="copybtn" onclick="copyText(event,this)" data-copy="自己株式" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑥ 社債</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑥ 社債" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">社債の発行（平価・割引・打歩）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="社債の発行（平価・割引・打歩）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">償却原価法（定額法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="償却原価法（定額法）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">社債の買入償還</span><button class="copybtn" onclick="copyText(event,this)" data-copy="社債の買入償還" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑦ 税金</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑦ 税金" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">法人税・住民税・事業税</span><button class="copybtn" onclick="copyText(event,this)" data-copy="法人税・住民税・事業税" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">消費税（税抜方式）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="消費税（税抜方式）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">圧縮記帳</span><button class="copybtn" onclick="copyText(event,this)" data-copy="圧縮記帳" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑧ 外貨建取引</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑧ 外貨建取引" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">為替差損益</span><button class="copybtn" onclick="copyText(event,this)" data-copy="為替差損益" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">決算時の換算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="決算時の換算" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑨ 本支店会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑨ 本支店会計" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">本店・支店間取引</span><button class="copybtn" onclick="copyText(event,this)" data-copy="本店・支店間取引" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">支店相互間の取引（本店集中計算制度）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="支店相互間の取引（本店集中計算制度）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">内部利益の控除</span><button class="copybtn" onclick="copyText(event,this)" data-copy="内部利益の控除" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑩ 連結会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑩ 連結会計" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">資本連結の基本</span><button class="copybtn" onclick="copyText(event,this)" data-copy="資本連結の基本" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">連結修正仕訳</span><button class="copybtn" onclick="copyText(event,this)" data-copy="連結修正仕訳" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">非支配株主持分</span><button class="copybtn" onclick="copyText(event,this)" data-copy="非支配株主持分" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">のれんの計上・償却</span><button class="copybtn" onclick="copyText(event,this)" data-copy="のれんの計上・償却" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">成果連結（債権債務の相殺）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="成果連結（債権債務の相殺）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">未実現利益の消去</span><button class="copybtn" onclick="copyText(event,this)" data-copy="未実現利益の消去" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑪ 帳簿組織・伝票</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑪ 帳簿組織・伝票" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">特殊仕訳帳</span><button class="copybtn" onclick="copyText(event,this)" data-copy="特殊仕訳帳" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">伝票制（3伝票制）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="伝票制（3伝票制）" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑫ 財務諸表・精算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑫ 財務諸表・精算表" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">損益計算書</span><button class="copybtn" onclick="copyText(event,this)" data-copy="損益計算書" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">貸借対照表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="貸借対照表" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">株主資本等変動計算書</span><button class="copybtn" onclick="copyText(event,this)" data-copy="株主資本等変動計算書" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">本支店合併精算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="本支店合併精算表" aria-label="コピー">📋</button></div></li>
+</ul></li>
+</ul></li>
+<li class="branch cat"><div class="node"><span class="toggle">▸</span><span class="label">工業簿記</span><button class="copybtn" onclick="copyText(event,this)" data-copy="工業簿記" aria-label="コピー">📋</button></div><ul class="children">
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">① 工業簿記の基礎</span><button class="copybtn" onclick="copyText(event,this)" data-copy="① 工業簿記の基礎" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">原価計算の目的</span><button class="copybtn" onclick="copyText(event,this)" data-copy="原価計算の目的" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">原価の分類（材料費・労務費・経費）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="原価の分類（材料費・労務費・経費）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">製造原価と非原価項目</span><button class="copybtn" onclick="copyText(event,this)" data-copy="製造原価と非原価項目" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">原価計算の種類（個別・総合）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="原価計算の種類（個別・総合）" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">② 費目別計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="② 費目別計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">材料費の計算（購入・消費）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="材料費の計算（購入・消費）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">労務費の計算（賃率・消費）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="労務費の計算（賃率・消費）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">経費の計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="経費の計算" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">③ 部門別計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="③ 部門別計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">部門個別費・部門共通費</span><button class="copybtn" onclick="copyText(event,this)" data-copy="部門個別費・部門共通費" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">直接配賦法</span><button class="copybtn" onclick="copyText(event,this)" data-copy="直接配賦法" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">相互配賦法（簡便法・連立方程式法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="相互配賦法（簡便法・連立方程式法）" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">④ 個別原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="④ 個別原価計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">製造指図書と原価計算表</span><button class="copybtn" onclick="copyText(event,this)" data-copy="製造指図書と原価計算表" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">仕損費の処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="仕損費の処理" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">作業くずの処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="作業くずの処理" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑤ 総合原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑤ 総合原価計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">単純総合原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="単純総合原価計算" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">工程別総合原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="工程別総合原価計算" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">組別総合原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="組別総合原価計算" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">等級別総合原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="等級別総合原価計算" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">仕損・減損の処理（度外視法・非度外視法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="仕損・減損の処理（度外視法・非度外視法）" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑥ 標準原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑥ 標準原価計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">標準原価の設定</span><button class="copybtn" onclick="copyText(event,this)" data-copy="標準原価の設定" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">価格差異・数量差異</span><button class="copybtn" onclick="copyText(event,this)" data-copy="価格差異・数量差異" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">能率差異・操業度差異</span><button class="copybtn" onclick="copyText(event,this)" data-copy="能率差異・操業度差異" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">差異分析のシュラッター図</span><button class="copybtn" onclick="copyText(event,this)" data-copy="差異分析のシュラッター図" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑦ 直接原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑦ 直接原価計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">固定費と変動費の分解</span><button class="copybtn" onclick="copyText(event,this)" data-copy="固定費と変動費の分解" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">直接原価計算の損益計算書</span><button class="copybtn" onclick="copyText(event,this)" data-copy="直接原価計算の損益計算書" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">CVP分析</span><button class="copybtn" onclick="copyText(event,this)" data-copy="CVP分析" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">損益分岐点分析</span><button class="copybtn" onclick="copyText(event,this)" data-copy="損益分岐点分析" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑧ 本社工場会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑧ 本社工場会計" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">内部取引の処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="内部取引の処理" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">工場元帳</span><button class="copybtn" onclick="copyText(event,this)" data-copy="工場元帳" aria-label="コピー">📋</button></div></li>
+</ul></li>
+</ul></li>
+</ul>
+<div class="note"><b>おすすめの進め方：</b> 商業簿記と工業簿記を並行して進める → 個別・総合原価計算を固めてから過去問演習</div>
+</div>
+</section>
+<section id="panel2" class="panel hidden" data-level="2">
+<div class="tree">
+<div class="root">簿記1級</div>
+<ul>
+<li class="branch cat open"><div class="node"><span class="toggle">▸</span><span class="label">商業簿記・会計学</span><button class="copybtn" onclick="copyText(event,this)" data-copy="商業簿記・会計学" aria-label="コピー">📋</button></div><ul class="children">
+<li class="branch open"><div class="node"><span class="toggle">▸</span><span class="label">① 企業会計の基礎理論</span><button class="copybtn" onclick="copyText(event,this)" data-copy="① 企業会計の基礎理論" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">会計公準</span><button class="copybtn" onclick="copyText(event,this)" data-copy="会計公準" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">企業会計原則</span><button class="copybtn" onclick="copyText(event,this)" data-copy="企業会計原則" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">概念フレームワーク</span><button class="copybtn" onclick="copyText(event,this)" data-copy="概念フレームワーク" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">会計基準の体系</span><button class="copybtn" onclick="copyText(event,this)" data-copy="会計基準の体系" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">② 収益認識</span><button class="copybtn" onclick="copyText(event,this)" data-copy="② 収益認識" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">収益認識の5ステップ</span><button class="copybtn" onclick="copyText(event,this)" data-copy="収益認識の5ステップ" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">履行義務の識別</span><button class="copybtn" onclick="copyText(event,this)" data-copy="履行義務の識別" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">一時点or一定期間の収益認識</span><button class="copybtn" onclick="copyText(event,this)" data-copy="一時点or一定期間の収益認識" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">変動対価</span><button class="copybtn" onclick="copyText(event,this)" data-copy="変動対価" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">③ 金融商品会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="③ 金融商品会計" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">有価証券の分類と評価（売買目的・満期保有・その他有価証券）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="有価証券の分類と評価（売買目的・満期保有・その他有価証券）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">デリバティブ取引の評価</span><button class="copybtn" onclick="copyText(event,this)" data-copy="デリバティブ取引の評価" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">ヘッジ会計（繰延ヘッジ・時価ヘッジ）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="ヘッジ会計（繰延ヘッジ・時価ヘッジ）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">減損処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="減損処理" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">④ 固定資産会計（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="④ 固定資産会計（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">資産除去債務</span><button class="copybtn" onclick="copyText(event,this)" data-copy="資産除去債務" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">減損会計（兆候・認識・測定）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="減損会計（兆候・認識・測定）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">圧縮記帳の応用</span><button class="copybtn" onclick="copyText(event,this)" data-copy="圧縮記帳の応用" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑤ 引当金・負債会計（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑤ 引当金・負債会計（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">引当金の理論的根拠</span><button class="copybtn" onclick="copyText(event,this)" data-copy="引当金の理論的根拠" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">リース会計（詳細な処理）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="リース会計（詳細な処理）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">退職給付会計（数理計算上の差異等）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="退職給付会計（数理計算上の差異等）" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑥ 純資産会計（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑥ 純資産会計（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">自己株式・新株予約権</span><button class="copybtn" onclick="copyText(event,this)" data-copy="自己株式・新株予約権" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">ストック・オプション会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="ストック・オプション会計" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑦ 企業結合・事業分離</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑦ 企業結合・事業分離" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">合併（パーチェス法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="合併（パーチェス法）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">株式交換・株式移転</span><button class="copybtn" onclick="copyText(event,this)" data-copy="株式交換・株式移転" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">事業分離の会計処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="事業分離の会計処理" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑧ 連結会計（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑧ 連結会計（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">持分法</span><button class="copybtn" onclick="copyText(event,this)" data-copy="持分法" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">連結精算表の応用</span><button class="copybtn" onclick="copyText(event,this)" data-copy="連結精算表の応用" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">税効果会計（連結）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="税効果会計（連結）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">連結キャッシュ・フロー計算書</span><button class="copybtn" onclick="copyText(event,this)" data-copy="連結キャッシュ・フロー計算書" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑨ キャッシュ・フロー計算書</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑨ キャッシュ・フロー計算書" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">直接法</span><button class="copybtn" onclick="copyText(event,this)" data-copy="直接法" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">間接法</span><button class="copybtn" onclick="copyText(event,this)" data-copy="間接法" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">フリー・キャッシュ・フロー</span><button class="copybtn" onclick="copyText(event,this)" data-copy="フリー・キャッシュ・フロー" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑩ 外貨換算会計（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑩ 外貨換算会計（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">在外子会社の財務諸表項目の換算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="在外子会社の財務諸表項目の換算" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">為替換算調整勘定</span><button class="copybtn" onclick="copyText(event,this)" data-copy="為替換算調整勘定" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑪ 本支店・工事契約</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑪ 本支店・工事契約" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">工事進行基準</span><button class="copybtn" onclick="copyText(event,this)" data-copy="工事進行基準" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">工事完成基準</span><button class="copybtn" onclick="copyText(event,this)" data-copy="工事完成基準" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">本支店会計の応用</span><button class="copybtn" onclick="copyText(event,this)" data-copy="本支店会計の応用" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑫ 特殊論点</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑫ 特殊論点" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">会計上の変更及び誤謬の訂正</span><button class="copybtn" onclick="copyText(event,this)" data-copy="会計上の変更及び誤謬の訂正" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">包括利益・その他の包括利益累計額</span><button class="copybtn" onclick="copyText(event,this)" data-copy="包括利益・その他の包括利益累計額" aria-label="コピー">📋</button></div></li>
+</ul></li>
+</ul></li>
+<li class="branch cat"><div class="node"><span class="toggle">▸</span><span class="label">工業簿記・原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="工業簿記・原価計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">① 原価計算基準</span><button class="copybtn" onclick="copyText(event,this)" data-copy="① 原価計算基準" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">原価計算の目的（財務諸表作成・原価管理・利益管理）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="原価計算の目的（財務諸表作成・原価管理・利益管理）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">原価計算基準の構成</span><button class="copybtn" onclick="copyText(event,this)" data-copy="原価計算基準の構成" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">② 個別原価計算（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="② 個別原価計算（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">仕損費の詳細処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="仕損費の詳細処理" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">作業くずの詳細処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="作業くずの詳細処理" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">補修指図書</span><button class="copybtn" onclick="copyText(event,this)" data-copy="補修指図書" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">③ 総合原価計算（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="③ 総合原価計算（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">連産品の原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="連産品の原価計算" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">副産物の処理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="副産物の処理" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">等価係数の設定</span><button class="copybtn" onclick="copyText(event,this)" data-copy="等価係数の設定" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">④ 標準原価計算（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="④ 標準原価計算（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">原価差異の会計処理（原価性の有無）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="原価差異の会計処理（原価性の有無）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">仕掛品への配賦</span><button class="copybtn" onclick="copyText(event,this)" data-copy="仕掛品への配賦" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑤ 直接原価計算・CVP分析（応用）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑤ 直接原価計算・CVP分析（応用）" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">セグメント別損益計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="セグメント別損益計算" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">事業部制会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="事業部制会計" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">全部原価計算との利益差異調整</span><button class="copybtn" onclick="copyText(event,this)" data-copy="全部原価計算との利益差異調整" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑥ 予算管理</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑥ 予算管理" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">予算編成</span><button class="copybtn" onclick="copyText(event,this)" data-copy="予算編成" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">予算統制</span><button class="copybtn" onclick="copyText(event,this)" data-copy="予算統制" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">予算実績差異分析</span><button class="copybtn" onclick="copyText(event,this)" data-copy="予算実績差異分析" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑦ 意思決定会計</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑦ 意思決定会計" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">業務的意思決定（自製か購入か）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="業務的意思決定（自製か購入か）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">差額原価収益分析</span><button class="copybtn" onclick="copyText(event,this)" data-copy="差額原価収益分析" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">設備投資の意思決定（正味現在価値法・回収期間法）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="設備投資の意思決定（正味現在価値法・回収期間法）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">割引キャッシュフロー</span><button class="copybtn" onclick="copyText(event,this)" data-copy="割引キャッシュフロー" aria-label="コピー">📋</button></div></li>
+</ul></li>
+<li class="branch"><div class="node"><span class="toggle">▸</span><span class="label">⑧ 戦略的原価計算</span><button class="copybtn" onclick="copyText(event,this)" data-copy="⑧ 戦略的原価計算" aria-label="コピー">📋</button></div><ul class="children">
+<li class="leaf"><div class="node"><span class="label">ABC（活動基準原価計算）</span><button class="copybtn" onclick="copyText(event,this)" data-copy="ABC（活動基準原価計算）" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">原価企画</span><button class="copybtn" onclick="copyText(event,this)" data-copy="原価企画" aria-label="コピー">📋</button></div></li>
+<li class="leaf"><div class="node"><span class="label">ライフサイクル・コスティング</span><button class="copybtn" onclick="copyText(event,this)" data-copy="ライフサイクル・コスティング" aria-label="コピー">📋</button></div></li>
+</ul></li>
+</ul></li>
+</ul>
+<div class="note"><b>おすすめの進め方：</b> 2級の内容を土台に、理論（会計学）と応用計算を積み上げる。範囲が広いので過去問と併走がおすすめ</div>
+</div>
+</section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let currentLevel = 0;
+
+function switchTab(idx){
+  currentLevel = idx;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('hidden', p.dataset.level!=idx));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b.dataset.idx==idx));
+  document.getElementById('search').value='';
+  applySearch();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+document.querySelectorAll('.branch>.node').forEach(n=>{
+  n.addEventListener('click',(e)=>{
+    if(e.target.closest('.copybtn')) return;
+    n.parentElement.classList.toggle('open');
+  });
+});
+
+function currentPanel(){
+  return document.querySelector('.panel[data-level="'+currentLevel+'"]');
+}
+function expandAll(){ currentPanel().querySelectorAll('.branch').forEach(x=>x.classList.add('open')); }
+function closeAll(){ currentPanel().querySelectorAll('.branch').forEach(x=>x.classList.remove('open')); }
+
+const search=document.getElementById('search');
+search.addEventListener('input', applySearch);
+function applySearch(){
+  const q=search.value.trim().toLowerCase();
+  const panel=currentPanel();
+  panel.querySelectorAll('.branch').forEach(branch=>{
+    const hit=branch.innerText.toLowerCase().includes(q);
+    branch.style.display=(!q||hit)?'':'none';
+    if(q&&hit) branch.classList.add('open');
+  });
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.classList.remove('show'),1300);
+}
+
+function copyText(e, btn){
+  e.stopPropagation();
+  const text=btn.dataset.copy;
+  const done=()=>{
+    btn.classList.add('copied');
+    showToast('コピーしました：'+text);
+    setTimeout(()=>btn.classList.remove('copied'),900);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else {
+    fallbackCopy(text,done);
+  }
+}
+function fallbackCopy(text, done){
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  ta.style.position='fixed';
+  ta.style.opacity='0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try{ document.execCommand('copy'); done(); }catch(err){ showToast('コピーに失敗しました'); }
+  document.body.removeChild(ta);
+}
+</script>
+</body>
+</html>
